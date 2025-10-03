@@ -1,0 +1,20 @@
+{
+  "name": "tracknprep",
+  "version": "1.0.0",
+  "main": "helper.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kajalmeshram11/TrackNPrep.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kajalmeshram11/TrackNPrep/issues"
+  },
+  "homepage": "https://github.com/Kajalmeshram11/TrackNPrep#readme",
+  "description": ""
+}

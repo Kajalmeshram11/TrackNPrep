@@ -1,5 +1,5 @@
 import React from "react";
-import { getInitials } from "./helper";
+import { getInitials } from "../../../../helper";
 
 const SummaryCard = ({
     colors,

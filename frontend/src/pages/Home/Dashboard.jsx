@@ -1,12 +1,13 @@
-import moment from "moment";
-import { useEffect, useState } from 'react';
-import { LuPlus } from "react-icons/lu";
-import { useNavigate } from "react-router-dom";
-import SummaryCard from "../../components/Cards/SummaryCard";
+import React, { useEffect, useState } from 'react'
+import {LuPlus} from "react-icons/lu";
+import {CARD_BG} from "../../utils/data";
+import toast from "react-hot-toast";
 import DashboardLayout from '../../components/layouts/DashboardLayout';
-import { API_PATHS } from "../../utils/apiPaths";
+import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
-import { CARD_BG } from "../../utils/data";
+import { API_PATHS } from "../../utils/apiPaths";
+import SummaryCard from "../../components/Cards/SummaryCard";
+import moment from "moment";
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -24,20 +25,7 @@ const Dashboard = () => {
             console.error("Error fetching session data:",error);
         }
     };
-    const deleteSession = async (sessionData) => {
-  try {
-    await axiosInstance.delete(API_PATHS.SESSION.DELETE(sessionData?._id));
-    toast.success("Session Deleted Successfully");
-    setOpenDeleteAlert({
-      open: false,
-      data: null,
-    });
-    fetchAllSessions();
-  } catch (error) {
-    console.error("Error deleting session data:", error);
-  }
-};
-
+    const deleteSessions = async (sessionData) => {};
     useEffect(() => {
         fetchAllSessions();
     },[]);
@@ -85,7 +73,21 @@ const Dashboard = () => {
                 </div>
 
             </Modal>
+            <Modal
+                isOpen={openDeleteAlert?.open}
+                onClose={() => {
+                    setOpenDeleteAlert({open: false,data:null});
+                }}
+                title="Delete Alert"
+            >
+                <div className="w-[30vw]">
+                    <DeleteAlertContent
+                        content="Are you sure you want to delete this session detail?"
+                        onDelete={() => deleteSession(openDeleteAlert)}
+                    />
+                </div>
+            </Modal>
         </DashboardLayout>
-    )
-}
-export default Dashboard;
+    );
+};
+export default Dashboard

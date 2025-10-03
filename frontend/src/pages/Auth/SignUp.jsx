@@ -20,7 +20,7 @@ const SignUp = ({setCurrentPage}) => {
   const handleSignUp = async (e) => {
     e.preventDefault();
     let profileImageUrl = "";
-    
+
     if(!fullName) {
       setError("Please enter your full name.");
       return;

@@ -17,4 +17,4 @@ const DeleteAlertContent = ({ content, onDelete }) => {
   )
 }
 
-export default DeleteAlertContent
+export default DeleteAlertContent;

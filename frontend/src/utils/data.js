@@ -24,4 +24,16 @@ export const APP_FEATURES = [
         title: 'Understand the "Why" Behind Answers',
         description: "Beyond just answers - unlock detailed concept expalanations to grasp the underlying principles and reasoning.",
     },
-]
+];
+
+
+export const CARD_BG = [
+  "#FDE68A", // yellow-300
+  "#A7F3D0", // green-200
+  "#BFDBFE", // blue-200
+  "#FECACA", // red-200
+  "#E9D5FF", // purple-200
+  "#FBCFE8", // pink-200
+  "#FFD8A8", // orange-200
+  "#C7D2FE", // indigo-200
+];

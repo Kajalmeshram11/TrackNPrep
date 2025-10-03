@@ -1,22 +1,29 @@
-import React from "react";
+import React, { useContext } from "react";
 import HERO_IMAGE from "../assets/hero-image.png";
 import {APP_FEATURES} from "../utils/data";
 import {LuSparkles} from "react-icons/lu";
 import { useState } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal.jsx";
 import Login from "./Auth/Login.jsx";
 import SignUp from "./Auth/SignUp.jsx";
+import { UserContext } from "../context/userContext.jsx";
+import ProfileInfoCard from "../components/Cards/ProfileInfoCard.jsx";
 
 const LandingPage = () => {
-  // const navigate = useNavigate();
+  const {user} = useContext(UserContext);
+  const navigate = useNavigate();
 
   const [openAuthModal, setOpenAuthModal] = useState(false);
   const [currentPage, setCurrentPage] = useState("login");
 
   const handleCTA = () => {
-    setOpenAuthModal(true);
-    setCurrentPage("signup");
+    if(!user){
+      setOpenAuthModal(true);
+      // setCurrentPage("signup");
+    } else{
+      navigate("./Home/Dashboard.jsx");
+    }
   }
 
   return (
@@ -29,10 +36,10 @@ const LandingPage = () => {
             <div className = "text-xl text-black font-bold">
               Interview Prep AI
             </div>
-            <button className="bg-linear-to-r from-[#FF9324] tp-[#e99a4b] text-sm font-semibold text-white px-7 py-2.5 rounded-full hover:bg-black hover:text-white border border-white transition-colors cursor-pointer"
+            {user ? <ProfileInfoCard /> : <button className="bg-linear-to-r from-[#FF9324] tp-[#e99a4b] text-sm font-semibold text-white px-7 py-2.5 rounded-full hover:bg-black hover:text-white border border-white transition-colors cursor-pointer"
             onClick={() => setOpenAuthModal(true)}>
               Login / Sign Up
-            </button>
+            </button>}
           </header>
           {/* Hero Content */}
           <div className = "flex flex-col md:flex-row items-center">

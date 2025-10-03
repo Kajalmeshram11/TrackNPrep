@@ -1,6 +1,6 @@
 import React, { useState } from 'react'; // ✅ useState import added
 import { useNavigate } from "react-router-dom";
-import Input from "../../components/Inputs/Inputs";
+import Input from '../../components/Inputs/Input';
 import axios from 'axios'; // ✅ axios import added
 
 const CreateSessionForm = () => {

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { getAuthToken } from './auth'; // Assume you have a function to get the auth token
 import { BASE_URL } from './apiPaths';
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
@@ -31,10 +30,7 @@ axiosInstance.interceptors.response.use(
             // Handle specific status codes
             if (error.response.status === 401) {
                 // Handle unauthorized access, e.g., redirect to login
-                window.location.href = '/login';
-            }
-            else if (error.response.status === 403) {
-                console.error('Forbidden! You do not have permission to access this resource.');
+                window.location.href = "/";
             }
             else if (error.response.status === 500) {
                 console.error('Server error! Please try again later.');

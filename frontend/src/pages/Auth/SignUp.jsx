@@ -1,9 +1,12 @@
-import React from "react";
-// import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import Input from "../../components/Inputs/Input";
 import ProfilePhotoSelector from "../../components/Inputs/ProfilePhotoSelector";
 import { validateEmail } from "../../utils/helper";
+import { UserContext } from "../../context/userContext";
+import axiosInstance from "../../utils/axiosInstance";
+import { API_PATHS } from "../../utils/apiPaths";
+import uploadImage from "../../utils/uploadImage";
 
 const SignUp = ({setCurrentPage}) => {
   const [profilePic, setProfilePic] = useState(null);
@@ -11,17 +14,19 @@ const SignUp = ({setCurrentPage}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  // const navigate = useNavigate();
-  // Handle signup form submission
+  const {updateUser} = useContext(UserContext);
+  const navigate = useNavigate();
+
   const handleSignUp = async (e) => {
     e.preventDefault();
-    //Form Validations
+    let profileImageUrl = "";
+
     if(!fullName) {
       setError("Please enter your full name.");
       return;
     }
     if(!validateEmail(email)) {
-      setError("Please enter your email address.");
+      setError("Please enter a valid email address.");
       return;
     }
     if(!password) {
@@ -29,11 +34,26 @@ const SignUp = ({setCurrentPage}) => {
       return;
     }
     setError("");
-    //Signup API call here
 
     try{
-      //On successful signup, redirect to dashboard
-      // navigate("/dashboard");
+      if(profilePic){
+        const imgUploadRes = await uploadImage(profilePic);
+        profileImageUrl = imgUploadRes.imageUrl || "";
+      }
+
+      const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
+        name: fullName,
+        email,
+        password,
+        profileImageUrl,
+      });
+
+      const { token } = response.data;
+      if(token){
+        localStorage.setItem("token", token);
+        updateUser(response.data);
+        navigate("/dashboard"); // ✅ corrected
+      }
     } catch (err) {
       if(err.response && err.response.data.message) {
         setError(err.response.data.message);
@@ -42,10 +62,11 @@ const SignUp = ({setCurrentPage}) => {
       }
     }
   }
+
   return (
     <div className="w-[90vw] md:w-[33vw] p-7 flex flex-col justify-center">
       <h3 className="text-lg font-semibold text-black">Create an Account</h3>
-      <p className="text-xs text-slate mt-[5px] mb-6">
+      <p className="text-xs text-slate-700 mt-[5px] mb-6">
         Please fill in the details to create your account.
       </p>
       <form onSubmit={handleSignUp}>
@@ -90,6 +111,7 @@ const SignUp = ({setCurrentPage}) => {
         </p>
       </form>
     </div>
-    );
+  );
 }
+
 export default SignUp;

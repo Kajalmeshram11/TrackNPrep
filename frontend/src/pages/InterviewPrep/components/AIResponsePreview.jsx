@@ -106,7 +106,7 @@ const AIResponsePreview = ({ content }) => {
         </ReactMarkdown>
       </div>
     </div>
-  ) 
+  )
 }
 
 

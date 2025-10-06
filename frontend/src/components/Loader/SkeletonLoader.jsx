@@ -1,8 +1,7 @@
- import React from "react";
- 
+import React from "react";
+
  const SkeletonLoader = () => {
    return (
-    
     <div className="max-w-4xl mx-auto space-y-4">
       {/* Title skeleton */}
       <div className="h-6 bg-gray-200 rounded animate-pulse w-3/4"></div>

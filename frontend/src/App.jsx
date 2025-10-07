@@ -12,21 +12,28 @@ const App = () => {
       <div>
         <Router>
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
+
+            {/* Protected / User Routes */}
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/interview-prep" element={<InterviewPrep />} />
+
+            {/* Fix: Added :sessionId param */}
+            <Route path="/interview-prep/:sessionId" element={<InterviewPrep />} />
           </Routes>
         </Router>
-        <Toaster toastOptions={{
-          className: "",
-          style: {
-            fontSize: "13px",
-          },
-        }}
+
+        <Toaster
+          toastOptions={{
+            className: "",
+            style: {
+              fontSize: "13px",
+            },
+          }}
         />
       </div>
     </UserProvider>
   );
-}
+};
 
 export default App;

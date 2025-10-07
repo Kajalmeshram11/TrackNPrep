@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { LuCircleAlert, LuListCollapse } from "react-icons/lu";
 import SpinnerLoader from "../../components/Loader/SpinnerLoader";
 import { toast } from "react-hot-toast";
-import AIResponsePreview from "./components/AIResponsePreview"
+import AIResponsePreview from "./components/AIResponsePreview";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
 import RoleInfoHeader from "./components/RoleInfoHeader";
 import axiosInstance from "../../utils/axiosInstance";
@@ -24,7 +24,7 @@ const InterviewPrep = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdateLoader, setIsUpdateLoader] = useState(false);
 
-  // Fetch session data by session id
+  // ✅ Fetch session data by session id
   const fetchSessionDetailsById = async () => {
     try {
       const response = await axiosInstance.get(
@@ -32,14 +32,22 @@ const InterviewPrep = () => {
       );
 
       if (response.data && response.data.session) {
+        console.log("✅ Session Data:", response.data.session);
         setSessionData(response.data.session);
+      } else {
+        setErrorMsg("Session not found");
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error fetching session:", error);
+      if (error.response && error.response.status === 401) {
+        setErrorMsg("Unauthorized! Please login again.");
+      } else {
+        setErrorMsg("Failed to load session. Try again later.");
+      }
     }
   };
 
-  // Generate Concept Explanation
+  // ✅ Generate Concept Explanation
   const generateConceptExplanation = async (question) => {
     try {
       setErrorMsg("");
@@ -49,45 +57,41 @@ const InterviewPrep = () => {
       setOpenLearnMoreDrawer(true);
 
       const response = await axiosInstance.post(
-        API_PATHS.AI.GENERATE_EXPLAINATION,
-        {
-          question,
-        }
+        API_PATHS.AI.GENERATE_EXPLANATION,
+        { question }
       );
+
       if (response.data) {
         setExplanation(response.data);
       }
     } catch (error) {
       setExplanation(null);
       setErrorMsg("Failed to generate explanation, Try again later");
-      console.error("Error:", error);
+      console.error("Error generating explanation:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Pin Question
+  // ✅ Pin Question
   const toggleQuestionPinStatus = async (questionId) => {
     try {
       const response = await axiosInstance.post(
         API_PATHS.QUESTION.PIN(questionId)
       );
-
       if (response.data && response.data.question) {
-        // toast.success("Question Pinned Successfully");
         fetchSessionDetailsById();
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error pinning question:", error);
     }
   };
 
-  // Add more questions to a session
+  // ✅ Add more questions
   const uploadMoreQuestions = async () => {
     try {
       setIsUpdateLoader(true);
 
-      // Call AI API to generate questions
       const aiResponse = await axiosInstance.post(
         API_PATHS.AI.GENERATE_QUESTIONS,
         {
@@ -98,16 +102,16 @@ const InterviewPrep = () => {
         }
       );
 
-      // Should be array like [{question, answer}, ...]
+      // 👇 backend se jo aa raha hai usko log karna zaruri hai
+      console.log("AI New Questions:", aiResponse.data);
+
       const generatedQuestions = aiResponse.data;
 
       const response = await axiosInstance.post(
         API_PATHS.QUESTION.ADD_TO_SESSION,
-        {
-          sessionId,
-          questions: generatedQuestions,
-        }
+        { sessionId, questions: generatedQuestions }
       );
+
       if (response.data) {
         toast.success("Added More Q&A!!");
         fetchSessionDetailsById();
@@ -127,104 +131,117 @@ const InterviewPrep = () => {
     if (sessionId) {
       fetchSessionDetailsById();
     }
-    return () => {};
   }, [sessionId]);
 
   return (
     <DashboardLayout>
-      <RoleInfoHeader
-        role={sessionData?.role || ""}
-        topicsToFocus={sessionData?.topicsToFocus || ""}
-        experience={sessionData?.experience || "--"}
-        questions={sessionData?.questions?.length || "--"}
-        description={sessionData?.description || ""}
-        lastUpdated={
-          sessionData?.updatedAt
-            ? moment(sessionData.updatedAt).format("DD MMMM YYYY")
-            : ""
-        }
-      />
-      <div className="conatiner mx-auto pt-4 pb-4 px-4 md:px-0">
-        <h2 className="text-lg font-semibold">Interview Q & A</h2>
-        <div className="grid grid-cols-12 gap-4 mt-5 mb-10">
-          <div
-            className={`col-span-12 ${
-              openLearnMoreDrawer ? "md:col-span-7" : "md:col-span-8"
-            }`}
-          >
-            <AnimatePresence>
-              {sessionData?.questions?.map((data, index) => {
-                return (
-                  <motion.div
-                    key={data._id || index}
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{
-                      duration: 0.4,
-                      type: "spring",
-                      stiffness: 100,
-                      delay: index * 0.1,
-                      damping: 15,
-                    }}
-                    layout
-                    layoutId={`question-${data._id || index}`}
-                  >
-                    <>
-                      <QuestionCard
-                        question={data?.question}
-                        answer={data?.answer}
-                        onLearnMore={() =>
-                          generateConceptExplanation(data.question)
-                        }
-                        isPinned={data?.isPinned}
-                        onTogglePin={() => toggleQuestionPinStatus(data._id)}
-                      />
+      {errorMsg && (
+        <div className="p-4 text-red-600 font-medium">{errorMsg}</div>
+      )}
 
-                      {!isLoading &&
-                        sessionData?.questions?.length === index + 1 && (
-                          <div className="flex items-center justify-center mt-5">
-                            <button
-                              className="flex items-center gap-3 text-white font-medium bg-black px-5 py-2 mr-2 rounded text-nowrap cursor-pointer"
-                              disabled={isLoading || isUpdateLoader}
-                              onClick={uploadMoreQuestions}
-                            >
-                              {isUpdateLoader ? (
-                                <SpinnerLoader />
-                              ) : (
-                                <LuListCollapse className="text-lg" />
-                              )}{" "}
-                              Load More
-                            </button>
-                          </div>
-                        )}
-                    </>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
+      {sessionData ? (
+        <>
+          <RoleInfoHeader
+            role={sessionData?.role || ""}
+            topicsToFocus={sessionData?.topicsToFocus || ""}
+            experience={sessionData?.experience || "--"}
+            questions={sessionData?.questions?.length || "--"}
+            description={sessionData?.description || ""}
+            lastUpdated={
+              sessionData?.updatedAt
+                ? moment(sessionData.updatedAt).format("DD MMMM YYYY")
+                : ""
+            }
+          />
+
+          {/* ✅ Questions List */}
+          <div className="conatiner mx-auto pt-4 pb-4 px-4 md:px-0">
+            <h2 className="text-lg font-semibold">Interview Q & A</h2>
+            <div className="grid grid-cols-12 gap-4 mt-5 mb-10">
+              <div
+                className={`col-span-12 ${
+                  openLearnMoreDrawer ? "md:col-span-7" : "md:col-span-8"
+                }`}
+              >
+                <AnimatePresence>
+                  {sessionData?.questions?.map((data, index) => (
+                    <motion.div
+                      key={data._id || index}
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{
+                        duration: 0.4,
+                        type: "spring",
+                        stiffness: 100,
+                        delay: index * 0.1,
+                        damping: 15,
+                      }}
+                      layout
+                      layoutId={`question-${data._id || index}`}
+                    >
+                      <>
+                        <QuestionCard
+                          question={data?.question}
+                          answer={data?.answer}
+                          onLearnMore={() =>
+                            generateConceptExplanation(data.question)
+                          }
+                          isPinned={data?.isPinned}
+                          onTogglePin={() => toggleQuestionPinStatus(data._id)}
+                        />
+
+                        {/* ✅ Load More button last pe */}
+                        {!isLoading &&
+                          sessionData?.questions?.length === index + 1 && (
+                            <div className="flex items-center justify-center mt-5">
+                              <button
+                                className="flex items-center gap-3 text-white font-medium bg-black px-5 py-2 mr-2 rounded text-nowrap cursor-pointer"
+                                disabled={isLoading || isUpdateLoader}
+                                onClick={uploadMoreQuestions}
+                              >
+                                {isUpdateLoader ? (
+                                  <SpinnerLoader />
+                                ) : (
+                                  <LuListCollapse className="text-lg" />
+                                )}{" "}
+                                Load More
+                              </button>
+                            </div>
+                          )}
+                      </>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            </div>
+
+            {/* ✅ Drawer for Learn More */}
+            <Drawer
+              isOpen={openLearnMoreDrawer}
+              onClose={() => setOpenLearnMoreDrawer(false)}
+              title={!isLoading && explanation?.title}
+            >
+              {errorMsg && (
+                <p className="flex gap-2 text-sm text-amber-600 font-medium">
+                  <LuCircleAlert className="mt-1" /> {errorMsg}
+                </p>
+              )}
+
+              {isLoading && <SkeletonLoader />}
+              {!isLoading && explanation && (
+                <AIResponsePreview content={explanation?.explanation} />
+              )}
+            </Drawer>
           </div>
-        </div>
-
-        <div>
-          <Drawer
-            isOpen={openLearnMoreDrawer}
-            onClose={() => setOpenLearnMoreDrawer(false)}
-            title={!isLoading && explanation?.title}
-          >
-            {errorMsg && (
-              <p className="flex gap-2 text-sm text-amber-600 font-medium">
-                <LuCircleAlert className="mt-1" /> {errorMsg}
-              </p>
-            )}
-
-            {isLoading && <SkeletonLoader />}
-            {!isLoading && explanation && (
-              <AIResponsePreview content={explanation?.explanation} />
-            )}
-          </Drawer>
-        </div>
-      </div>
+        </>
+      ) : (
+        !errorMsg && (
+          <div className="flex justify-center items-center h-64">
+            <SpinnerLoader />
+          </div>
+        )
+      )}
     </DashboardLayout>
   );
 };

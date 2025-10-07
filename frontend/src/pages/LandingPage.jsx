@@ -1,14 +1,13 @@
-import React, { useContext } from "react";
-import HERO_IMAGE from "../assets/hero-image.png";
-import {APP_FEATURES} from "../utils/data";
-import {LuSparkles} from "react-icons/lu";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { LuSparkles } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
+import HERO_IMAGE from "../assets/hero-image.png";
+import ProfileInfoCard from "../components/Cards/ProfileInfoCard.jsx";
 import Modal from "../components/Modal.jsx";
+import { UserContext } from "../context/userContext.jsx";
+import { APP_FEATURES } from "../utils/data";
 import Login from "./Auth/Login.jsx";
 import SignUp from "./Auth/SignUp.jsx";
-import { UserContext } from "../context/userContext.jsx";
-import ProfileInfoCard from "../components/Cards/ProfileInfoCard.jsx";
 
 const LandingPage = () => {
   const {user} = useContext(UserContext);
@@ -22,7 +21,7 @@ const LandingPage = () => {
       setOpenAuthModal(true);
       // setCurrentPage("signup");
     } else{
-      navigate("./Home/Dashboard.jsx");
+      navigate("./Dashboard");
     }
   }
 

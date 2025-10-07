@@ -1,7 +1,8 @@
-import React, { useState } from 'react'; // ✅ useState import added
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Input from '../../components/Inputs/Input';
-import axios from 'axios'; // ✅ axios import added
+import Input from "../../components/Inputs/Input";
+import axiosInstance from "../../utils/axiosInstance";
+import { API_PATHS } from "../../utils/apiPaths";
 
 const CreateSessionForm = () => {
   const [formData, setFormData] = useState({
@@ -23,7 +24,7 @@ const CreateSessionForm = () => {
   };
 
   const handleCreateSession = async (e) => {
-    e.preventDefault(); // ✅ moved inside the function
+    e.preventDefault();
 
     const { role, experience, topicsToFocus } = formData;
     if (!role || !experience || !topicsToFocus) {
@@ -34,19 +35,22 @@ const CreateSessionForm = () => {
     setIsLoading(true);
 
     try {
-      // ✅ Minimal axios call, replace API_PATHS with actual endpoint
-      const aiResponse = await axios.post("/api/generate-questions", {
-        role,
-        experience,
-        topicsToFocus,
-        numberOfQuestions: 10,
-      });
+      const aiResponse = await axiosInstance.post(
+  API_PATHS.AI.GENERATE_QUESTIONS,
+  {
+    role,
+    experience,
+    topicsToFocus,
+    description: formData.description,
+    numberOfQuestions: 10, // ✅ Added this
+  }
+);
 
       console.log("AI Response:", aiResponse.data);
       setIsLoading(false);
-      // navigate('/next-page'); // optional
+      // navigate("/next-page");
     } catch (err) {
-      console.error(err);
+      console.error("API Error:", err);
       setError("Something went wrong!");
       setIsLoading(false);
     }
@@ -58,7 +62,8 @@ const CreateSessionForm = () => {
         Start a New Interview Journey
       </h3>
       <p className="text-xs text-slate-700 mt-[5px] mb-3">
-        Fill out a few quick details and unlock your personalized set of interview questions!
+        Fill out a few quick details and unlock your personalized set of
+        interview questions!
       </p>
       <form onSubmit={handleCreateSession} className="flex flex-col gap-3">
         <Input
@@ -95,7 +100,7 @@ const CreateSessionForm = () => {
           className="btn-primary w-full mt-2"
           disabled={isLoading}
         >
-          {isLoading ? "Loading..." : "Create Session"} {/* ✅ SpinnerLoader replaced with simple text */}
+          {isLoading ? "Loading..." : "Create Session"}
         </button>
       </form>
     </div>

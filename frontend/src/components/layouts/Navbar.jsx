@@ -11,9 +11,15 @@ const Navbar = () => {
                     Interview Prep AI
                 </h2>
             </Link>
+            <Link to="/mock-interview">Mock Interview</Link>
+
             <ProfileInfoCard />
         </div>
     </div>
+
+
+
+
   );
 }
 
